@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Web — any URL via Jina Reader. Always available."""
 
+import os
 import urllib.request
 from .base import Channel
 
@@ -24,9 +25,13 @@ class WebChannel(Channel):
         if not url.startswith(("http://", "https://")):
             url = "https://" + url
         jina_url = f"https://r.jina.ai/{url}"
+        headers = {"User-Agent": _UA, "Accept": "text/plain"}
+        api_key = os.environ.get("JINA_API_KEY")
+        if api_key:
+            headers["Authorization"] = f"Bearer {api_key}"
         req = urllib.request.Request(
             jina_url,
-            headers={"User-Agent": _UA, "Accept": "text/plain"},
+            headers=headers,
         )
         with urllib.request.urlopen(req, timeout=30) as resp:
             return resp.read().decode("utf-8")
